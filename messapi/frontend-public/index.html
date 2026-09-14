@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🍽️ Restaurantes y Disponibilidad</title>
+    <link rel="stylesheet" href="css/main.css" />
+</head>
+<body>
+
+    <header class="hero">
+        <h1>🍽️ Restaurantes disponibles</h1>
+        <p>Consultá en tiempo real qué restaurantes tienen mesas libres.</p>
+    </header>
+
+    <main class="container">
+        <div class="toolbar">
+            <button id="refreshBtn" class="btn">🔄 Actualizar</button>
+            <span id="lastUpdate" class="last-update"></span>
+        </div>
+
+        <div id="loading" class="loading">Cargando restaurantes...</div>
+        <div id="error" class="error hidden"></div>
+
+        <section id="restaurants" class="restaurants-grid"></section>
+    </main>
+
+    <!-- Modal de mesas -->
+    <div id="modal" class="modal hidden">
+        <div class="modal-content">
+            <button class="modal-close" id="modalClose">&times;</button>
+            <h2 id="modalTitle">Mesas</h2>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>Sistema de Gestión de Disponibilidad de Mesas &copy; 2025</p>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
