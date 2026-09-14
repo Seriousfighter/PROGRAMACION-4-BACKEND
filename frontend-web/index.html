@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Restaurantes disponibles</title>
+
+    <link rel="stylesheet" href="main.css">
+</head>
+
+<body>
+
+    <header class="encabezado">
+
+        <div class="contenedor">
+
+            <h1>Restaurantes disponibles</h1>
+
+            <p>
+                Consultá rápidamente qué restaurantes tienen mesas disponibles.
+            </p>
+
+        </div>
+
+    </header>
+
+
+    <main class="contenedor">
+
+        <section class="busqueda">
+
+            <input
+                type="text"
+                id="buscador"
+                placeholder="Buscar restaurante..."
+            >
+
+        </section>
+
+
+        <section id="mensaje">
+
+            <p>Cargando restaurantes...</p>
+
+        </section>
+
+
+        <section
+            id="restaurantes"
+            class="lista-restaurantes"
+        >
+        </section>
+
+    </main>
+
+
+    <script src="main.js"></script>
+
+</body>
+
+</html>
