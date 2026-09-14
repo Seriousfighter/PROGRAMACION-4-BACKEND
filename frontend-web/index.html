@@ -13,7 +13,6 @@
 <body>
 
     <header class="encabezado">
-
         <div class="contenedor">
 
             <h1>Restaurantes disponibles</h1>
@@ -23,13 +22,11 @@
             </p>
 
         </div>
-
     </header>
-
 
     <main class="contenedor">
 
-        <section class="busqueda">
+        <section class="filtros">
 
             <input
                 type="text"
@@ -37,15 +34,23 @@
                 placeholder="Buscar restaurante..."
             >
 
-        </section>
+            <select id="personas">
+                <option value="0">Cantidad de personas</option>
+                <option value="1">1 persona</option>
+                <option value="2">2 personas</option>
+                <option value="3">3 personas</option>
+                <option value="4">4 personas</option>
+                <option value="5">5 personas</option>
+                <option value="6">6 personas</option>
+                <option value="7">7 personas</option>
+                <option value="8">8 personas</option>
+            </select>
 
+        </section>
 
         <section id="mensaje">
-
             <p>Cargando restaurantes...</p>
-
         </section>
-
 
         <section
             id="restaurantes"
@@ -54,7 +59,6 @@
         </section>
 
     </main>
-
 
     <script src="main.js"></script>
 
