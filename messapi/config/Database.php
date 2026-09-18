@@ -3,10 +3,10 @@ class Database {
     private static $instance = null;
     private $conn;
 
-    private $host = 'localhost';
-    private $db_name = 'mesas_disponibles';
-    private $username = 'root';
-    private $password = '';
+    private $host = '127.0.0.1';
+    private $db_name = 'mesa_disponibles';
+    private $username = 'pochi';
+    private $password = 'pochi';
 
     private function __construct() {
         try {
@@ -14,7 +14,7 @@ class Database {
             $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $this->conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
         } catch(PDOException $exception) {
-            JsonView::render(['error' => 'Error de conexión a la base de datos'], 500);
+            JsonView::render(['error' => 'Error de conexión a la base de datos', 'message' => $exception->getMessage()], 500);
         }
     }
 

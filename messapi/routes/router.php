@@ -7,6 +7,17 @@ require_once __DIR__ . '/../views/JsonView.php';
 
 class Router {
     public static function dispatch($method, $uri) {
+        // --- HABILITAR CORS ---
+        header("Access-Control-Allow-Origin: *");
+        header("Access-Control-Allow-Methods: GET, POST, PATCH, PUT, DELETE, OPTIONS");
+        header("Access-Control-Allow-Headers: Content-Type, Authorization");
+
+        // Manejar las peticiones pre-flight de seguridad del navegador
+        if ($method === 'OPTIONS') {
+            http_response_code(200);
+            exit;
+        }
+
         // --- ENDPOINT PÚBLICO (RF-13) ---
         if ($method === 'GET' && preg_match('/\/api\/public\/restaurants\/?$/', $uri)) {
             $controller = new PublicController();
@@ -32,6 +43,11 @@ class Router {
                 $controller->rotateStatus($table_id, $jwt_user_id);
                 exit;
             }
+        }
+
+        if($method === 'GET' && $uri === '/')  { 
+            jsonView::render(['message' => 'API de mesas disponibles. Endpoints: /api/public/restaurants, /api/login, /api/tables/{id}/status'], 200);
+            exit;
         }
 
         // 404 - Ruta no encontrada
