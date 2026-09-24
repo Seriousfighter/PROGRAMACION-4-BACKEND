@@ -6,8 +6,15 @@ require_once __DIR__ . '/../views/JsonView.php';
 
 class AuthController
 {
+    private $userModel;
+
+    public function __construct()
+    {
+        $this->userModel = new User();
+    }
+
     // ========================================
-    // REGISTRO
+    // REGISTRAR RESTAURANTE
     // ========================================
 
     public function register()
@@ -17,121 +24,172 @@ class AuthController
             true
         );
 
-        if (!is_array($data)) {
-            JsonView::render([
-                'success' => false,
-                'message' => 'Datos inválidos.'
-            ], 400);
+        // ========================================
+        // OBTENER DATOS
+        // ========================================
 
-            return;
-        }
+        $restaurantName =
+            trim($data['restaurant_name'] ?? '');
 
-        $restaurantName = trim(
-            $data['restaurant_name'] ?? ''
-        );
+        $address =
+            trim($data['address'] ?? '');
 
-        $address = trim(
-            $data['address'] ?? ''
-        );
+        $city =
+            trim($data['city'] ?? '');
 
-        $phone = trim(
-            $data['phone'] ?? ''
-        );
+        $phone =
+            trim($data['phone'] ?? '');
 
-        $email = trim(
-            $data['email'] ?? ''
-        );
+        $description =
+            trim($data['description'] ?? '');
+
+        $email =
+            trim($data['email'] ?? '');
 
         $password =
             $data['password'] ?? '';
 
         // ========================================
-        // VALIDAR CAMPOS OBLIGATORIOS
+        // VALIDACIONES
         // ========================================
 
-        if (
-            $restaurantName === '' ||
-            $address === '' ||
-            $phone === '' ||
-            $email === '' ||
-            $password === ''
-        ) {
+        if ($restaurantName === '') {
+
             JsonView::render([
                 'success' => false,
                 'message' =>
-                'Todos los campos son obligatorios.'
-            ], 400);
+                'El nombre del restaurante es obligatorio.'
+            ], 422);
 
             return;
         }
 
-        // ========================================
-        // VALIDAR EMAIL
-        // ========================================
+        if ($address === '') {
 
-        if (
-            !filter_var(
-                $email,
-                FILTER_VALIDATE_EMAIL
-            )
-        ) {
+            JsonView::render([
+                'success' => false,
+                'message' =>
+                'La dirección es obligatoria.'
+            ], 422);
+
+            return;
+        }
+
+        if ($city === '') {
+
+            JsonView::render([
+                'success' => false,
+                'message' =>
+                'La ciudad es obligatoria.'
+            ], 422);
+
+            return;
+        }
+
+        if ($phone === '') {
+
+            JsonView::render([
+                'success' => false,
+                'message' =>
+                'El teléfono es obligatorio.'
+            ], 422);
+
+            return;
+        }
+
+        if ($email === '') {
+
+            JsonView::render([
+                'success' => false,
+                'message' =>
+                'El correo electrónico es obligatorio.'
+            ], 422);
+
+            return;
+        }
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+
             JsonView::render([
                 'success' => false,
                 'message' =>
                 'El correo electrónico no es válido.'
-            ], 400);
+            ], 422);
 
             return;
         }
 
-        // ========================================
-        // VALIDAR CONTRASEÑA
-        // ========================================
+        if ($password === '') {
+
+            JsonView::render([
+                'success' => false,
+                'message' =>
+                'La contraseña es obligatoria.'
+            ], 422);
+
+            return;
+        }
 
         if (strlen($password) < 6) {
+
             JsonView::render([
                 'success' => false,
                 'message' =>
                 'La contraseña debe tener al menos 6 caracteres.'
-            ], 400);
+            ], 422);
 
             return;
         }
 
         // ========================================
-        // REGISTRAR USUARIO
+        // REGISTRAR USUARIO Y RESTAURANTE
         // ========================================
 
-        $userModel = new User();
+        $result =
+            $this->userModel->register(
+                $restaurantName,
+                $address,
+                $city,
+                $phone,
+                $description,
+                $email,
+                $password
+            );
 
-        $result = $userModel->register(
-            $restaurantName,
-            $address,
-            $phone,
-            $email,
-            $password
-        );
+        // ========================================
+        // VERIFICAR RESULTADO
+        // ========================================
 
         if (!$result['success']) {
+
             JsonView::render([
                 'success' => false,
-                'message' => $result['message']
+                'message' =>
+                $result['message']
             ], 400);
 
             return;
         }
+
+        // ========================================
+        // REGISTRO CORRECTO
+        // ========================================
 
         JsonView::render([
             'success' => true,
+
             'message' =>
-            'Registro realizado correctamente.',
+            'Restaurante registrado correctamente.',
+
             'data' => [
+
                 'user_id' =>
                 $result['user_id'],
 
                 'restaurant_id' =>
                 $result['restaurant_id']
             ]
+
         ], 201);
     }
 
@@ -146,31 +204,30 @@ class AuthController
             true
         );
 
-        if (!is_array($data)) {
-            JsonView::render([
-                'success' => false,
-                'message' => 'Datos inválidos.'
-            ], 400);
+        // ========================================
+        // OBTENER DATOS
+        // ========================================
 
-            return;
-        }
-
-        $email = trim(
-            $data['email'] ?? ''
-        );
+        $email =
+            trim($data['email'] ?? '');
 
         $password =
             $data['password'] ?? '';
+
+        // ========================================
+        // VALIDACIONES
+        // ========================================
 
         if (
             $email === '' ||
             $password === ''
         ) {
+
             JsonView::render([
                 'success' => false,
                 'message' =>
-                'Email y contraseña son obligatorios.'
-            ], 400);
+                'Correo y contraseña son obligatorios.'
+            ], 422);
 
             return;
         }
@@ -179,14 +236,18 @@ class AuthController
         // BUSCAR USUARIO
         // ========================================
 
-        $userModel = new User();
+        $result =
+            $this->userModel->login(
+                $email,
+                $password
+            );
 
-        $result = $userModel->login(
-            $email,
-            $password
-        );
+        // ========================================
+        // VERIFICAR LOGIN
+        // ========================================
 
         if (!$result['success']) {
+
             JsonView::render([
                 'success' => false,
                 'message' =>
@@ -197,19 +258,31 @@ class AuthController
         }
 
         // ========================================
-        // CREAR JWT
+        // CREAR TOKEN JWT
+        // ========================================
+        //
+        // IMPORTANTE:
+        // Nuestro Jwt.php utiliza Jwt::create()
+        // y recibe solamente el ID del usuario.
         // ========================================
 
-        $token = Jwt::create(
-            $result['user_id']
-        );
+        $token =
+            Jwt::create(
+                $result['user_id']
+            );
+
+        // ========================================
+        // LOGIN CORRECTO
+        // ========================================
 
         JsonView::render([
             'success' => true,
+
             'message' =>
             'Inicio de sesión correcto.',
 
             'data' => [
+
                 'token' =>
                 $token,
 
@@ -219,15 +292,12 @@ class AuthController
                 'user_name' =>
                 $result['user_name'],
 
-                'email' =>
-                $result['email'],
-
                 'restaurant_id' =>
                 $result['restaurant_id'],
 
                 'restaurant_name' =>
                 $result['restaurant_name']
             ]
-        ], 200);
+        ]);
     }
 }

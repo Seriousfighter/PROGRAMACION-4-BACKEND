@@ -24,6 +24,7 @@ class Restaurant
                 user_id,
                 name,
                 address,
+                city,
                 phone,
                 description,
                 is_open,
@@ -51,6 +52,7 @@ class Restaurant
                 user_id,
                 name,
                 address,
+                city,
                 phone,
                 description,
                 is_open,
@@ -79,6 +81,7 @@ class Restaurant
         $userId,
         $name,
         $address,
+        $city,
         $phone,
         $description
     ) {
@@ -88,11 +91,12 @@ class Restaurant
                 user_id,
                 name,
                 address,
+                city,
                 phone,
                 description,
                 is_open
             )
-            VALUES (?, ?, ?, ?, ?, 1)
+            VALUES (?, ?, ?, ?, ?, ?, 1)
         ";
 
         $stmt = $this->db->prepare($query);
@@ -101,6 +105,7 @@ class Restaurant
             $userId,
             $name,
             $address,
+            $city,
             $phone,
             $description
         ]);
@@ -117,6 +122,7 @@ class Restaurant
         $userId,
         $name,
         $address,
+        $city,
         $phone,
         $description
     ) {
@@ -125,6 +131,7 @@ class Restaurant
             SET
                 name = ?,
                 address = ?,
+                city = ?,
                 phone = ?,
                 description = ?
             WHERE id = ?
@@ -136,6 +143,7 @@ class Restaurant
         $stmt->execute([
             $name,
             $address,
+            $city,
             $phone,
             $description,
             $restaurantId,
@@ -217,6 +225,7 @@ class Restaurant
                 r.id AS restaurant_id,
                 r.name AS restaurant_name,
                 r.address,
+                r.city,
                 r.phone,
                 r.description,
                 r.is_open,
@@ -260,6 +269,7 @@ class Restaurant
                     'id' => $restaurantId,
                     'name' => $row['restaurant_name'],
                     'address' => $row['address'],
+                    'city' => $row['city'],
                     'phone' => $row['phone'],
                     'description' => $row['description'],
                     'is_open' => (bool) $row['is_open'],

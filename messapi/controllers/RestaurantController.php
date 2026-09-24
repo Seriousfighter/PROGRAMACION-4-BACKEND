@@ -40,6 +40,7 @@ class RestaurantController
             );
 
         if (!$restaurant) {
+
             JsonView::render([
                 'success' => false,
                 'message' => 'Restaurante no encontrado.'
@@ -65,44 +66,84 @@ class RestaurantController
             true
         );
 
-        $name = trim($data['name'] ?? '');
-        $address = trim($data['address'] ?? '');
-        $phone = trim($data['phone'] ?? '');
-        $description = trim($data['description'] ?? '');
+        $name =
+            trim($data['name'] ?? '');
 
-        // Validaciones básicas
+        $address =
+            trim($data['address'] ?? '');
+
+        $city =
+            trim($data['city'] ?? '');
+
+        $phone =
+            trim($data['phone'] ?? '');
+
+        $description =
+            trim($data['description'] ?? '');
+
+
+        // ====================================
+        // VALIDACIONES
+        // ====================================
+
         if ($name === '') {
+
             JsonView::render([
                 'success' => false,
-                'message' => 'El nombre del restaurante es obligatorio.'
+                'message' =>
+                'El nombre del restaurante es obligatorio.'
             ], 422);
 
             return;
         }
+
 
         if ($address === '') {
+
             JsonView::render([
                 'success' => false,
-                'message' => 'La dirección es obligatoria.'
+                'message' =>
+                'La dirección es obligatoria.'
             ], 422);
 
             return;
         }
+
+
+        if ($city === '') {
+
+            JsonView::render([
+                'success' => false,
+                'message' =>
+                'La ciudad es obligatoria.'
+            ], 422);
+
+            return;
+        }
+
+
+        // ====================================
+        // CREAR
+        // ====================================
 
         $restaurantId =
             $this->restaurantModel->create(
                 $userId,
                 $name,
                 $address,
+                $city,
                 $phone,
                 $description
             );
 
+
         JsonView::render([
             'success' => true,
-            'message' => 'Restaurante creado correctamente.',
+            'message' =>
+            'Restaurante creado correctamente.',
             'data' => [
-                'restaurant_id' => (int) $restaurantId
+                'restaurant_id' =>
+                (int) $restaurantId
             ]
         ], 201);
     }
@@ -113,64 +154,109 @@ class RestaurantController
 
     public function update($restaurantId, $userId)
     {
-        // Primero comprobamos que pertenezca
-        // al usuario autenticado
+        // Comprobamos que el restaurante
+        // pertenezca al usuario autenticado.
+
         $restaurant =
             $this->restaurantModel->getById(
                 $restaurantId,
                 $userId
             );
 
+
         if (!$restaurant) {
+
             JsonView::render([
                 'success' => false,
-                'message' => 'Restaurante no encontrado.'
+                'message' =>
+                'Restaurante no encontrado.'
             ], 404);
 
             return;
         }
+
 
         $data = json_decode(
             file_get_contents("php://input"),
             true
         );
 
-        $name = trim($data['name'] ?? '');
-        $address = trim($data['address'] ?? '');
-        $phone = trim($data['phone'] ?? '');
-        $description = trim($data['description'] ?? '');
 
-        // Validaciones básicas
+        $name =
+            trim($data['name'] ?? '');
+
+        $address =
+            trim($data['address'] ?? '');
+
+        $city =
+            trim($data['city'] ?? '');
+
+        $phone =
+            trim($data['phone'] ?? '');
+
+        $description =
+            trim($data['description'] ?? '');
+
+
+        // ====================================
+        // VALIDACIONES
+        // ====================================
+
         if ($name === '') {
+
             JsonView::render([
                 'success' => false,
-                'message' => 'El nombre del restaurante es obligatorio.'
+                'message' =>
+                'El nombre del restaurante es obligatorio.'
             ], 422);
 
             return;
         }
+
 
         if ($address === '') {
+
             JsonView::render([
                 'success' => false,
-                'message' => 'La dirección es obligatoria.'
+                'message' =>
+                'La dirección es obligatoria.'
             ], 422);
 
             return;
         }
+
+
+        if ($city === '') {
+
+            JsonView::render([
+                'success' => false,
+                'message' =>
+                'La ciudad es obligatoria.'
+            ], 422);
+
+            return;
+        }
+
+
+        // ====================================
+        // ACTUALIZAR
+        // ====================================
 
         $this->restaurantModel->update(
             $restaurantId,
             $userId,
             $name,
             $address,
+            $city,
             $phone,
             $description
         );
 
+
         JsonView::render([
             'success' => true,
-            'message' => 'Restaurante actualizado correctamente.'
+            'message' =>
+            'Restaurante actualizado correctamente.'
         ]);
     }
 
@@ -186,14 +272,18 @@ class RestaurantController
                 $userId
             );
 
+
         if (!$restaurant) {
+
             JsonView::render([
                 'success' => false,
-                'message' => 'Restaurante no encontrado.'
+                'message' =>
+                'Restaurante no encontrado.'
             ], 404);
 
             return;
         }
+
 
         try {
 
@@ -203,18 +293,23 @@ class RestaurantController
                     $userId
                 );
 
+
             if (!$deleted) {
+
                 JsonView::render([
                     'success' => false,
-                    'message' => 'No fue posible eliminar el restaurante.'
+                    'message' =>
+                    'No fue posible eliminar el restaurante.'
                 ], 400);
 
                 return;
             }
 
+
             JsonView::render([
                 'success' => true,
-                'message' => 'Restaurante eliminado correctamente.'
+                'message' =>
+                'Restaurante eliminado correctamente.'
             ]);
         } catch (PDOException $e) {
 
@@ -238,14 +333,18 @@ class RestaurantController
                 $userId
             );
 
+
         if (!$restaurant) {
+
             JsonView::render([
                 'success' => false,
-                'message' => 'Restaurante no encontrado.'
+                'message' =>
+                'Restaurante no encontrado.'
             ], 404);
 
             return;
         }
+
 
         $newStatus =
             $this->restaurantModel->toggleStatus(
@@ -253,15 +352,19 @@ class RestaurantController
                 $userId
             );
 
-        $message = ((int) $newStatus === 1)
+
+        $message =
+            ((int) $newStatus === 1)
             ? 'Restaurante abierto.'
             : 'Restaurante cerrado.';
+
 
         JsonView::render([
             'success' => true,
             'message' => $message,
             'data' => [
-                'is_open' => (int) $newStatus
+                'is_open' =>
+                (int) $newStatus
             ]
         ]);
     }
@@ -273,7 +376,9 @@ class RestaurantController
     public function publicAvailability()
     {
         $restaurants =
-            $this->restaurantModel->getPublicAvailability();
+            $this->restaurantModel
+            ->getPublicAvailability();
+
 
         JsonView::render([
             'success' => true,
