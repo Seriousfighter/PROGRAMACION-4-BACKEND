@@ -1,0 +1,57 @@
+<?php
+require_once __DIR__ . '/../controllers/TableController.php';
+require_once __DIR__ . '/../controllers/PublicController.php';
+require_once __DIR__ . '/../controllers/AuthController.php';
+require_once __DIR__ . '/../middlewares/AuthMiddleware.php';
+require_once __DIR__ . '/../views/JsonView.php';
+
+class Router {
+    public static function dispatch($method, $uri) {
+        // --- HABILITAR CORS ---
+        header("Access-Control-Allow-Origin: *");
+        header("Access-Control-Allow-Methods: GET, POST, PATCH, PUT, DELETE, OPTIONS");
+        header("Access-Control-Allow-Headers: Content-Type, Authorization");
+
+        // Manejar las peticiones pre-flight de seguridad del navegador
+        if ($method === 'OPTIONS') {
+            http_response_code(200);
+            exit;
+        }
+
+        // --- ENDPOINT PÚBLICO (RF-13) ---
+        if ($method === 'GET' && preg_match('/\/api\/public\/restaurants\/?$/', $uri)) {
+            $controller = new PublicController();
+            $controller->listAvailable();
+            exit;
+        }
+
+        // --- ENDPOINT DE LOGIN ---
+        if ($method === 'POST' && preg_match('/\/api\/login\/?$/', $uri)) {
+            $controller = new AuthController();
+            $controller->login();
+            exit;
+        }
+
+        // --- ENDPOINTS PRIVADOS (Protegidos por JWT) ---
+        if (preg_match('/\/api\/tables/', $uri)) {
+            $jwt_user_id = AuthMiddleware::validateToken(); 
+            
+            // PATCH /api/tables/{id}/status (RF-12)
+            if ($method === 'PATCH' && preg_match('/\/api\/tables\/([0-9]+)\/status\/?$/', $uri, $matches)) {
+                $table_id = $matches[1];
+                $controller = new TableController();
+                $controller->rotateStatus($table_id, $jwt_user_id);
+                exit;
+            }
+        }
+
+        if($method === 'GET' && $uri === '/')  { 
+            jsonView::render(['message' => 'API de mesas disponibles. Endpoints: /api/public/restaurants, /api/login, /api/tables/{id}/status'], 200);
+            exit;
+        }
+
+        // 404 - Ruta no encontrada
+        JsonView::render(['error' => 'Not Found - Endpoint no valido'], 404);
+    }
+}
+?>
