@@ -32,9 +32,9 @@ class TableController
         JsonView::render(null, 204);
     }
 
-    public function rotateStatus(int $id, int $userId): void
+    public function rotateStatus(int $id): void
     {
-        $result = (new Table())->rotateStatus($id, $userId);
+        $result = (new Table())->rotateStatus($id);
         if (isset($result['error'])) {
             JsonView::render(['message' => $result['error']], $result['code']);
         }

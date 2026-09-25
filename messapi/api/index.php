@@ -103,7 +103,7 @@ try {
 
     // PATCH /api/tables/{id}/status
     if ($method === 'PATCH' && preg_match('#/api/tables/([0-9]+)/status/?$#', $uri, $m)) {
-        (new TableController())->rotateStatus((int) $m[1], $userId);
+        (new TableController())->rotateStatus((int) $m[1]);
     }
 
     // GET /api/tables/{id}

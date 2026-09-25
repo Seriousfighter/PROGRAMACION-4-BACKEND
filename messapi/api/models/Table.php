@@ -78,43 +78,54 @@ class Table
         return $stmt->execute(['id' => $id]);
     }
 
-    public function rotateStatus(int $tableId, int $userId): array
+    public function rotateStatus(int $tableId): array
     {
         $stmt = $this->conn->prepare(
-            "SELECT t.id, t.status_id
-             FROM tables t
-             INNER JOIN restaurants r ON r.id = t.restaurant_id
-             WHERE t.id = :tid AND r.user_id = :uid LIMIT 1"
+            "SELECT id, status_id
+         FROM tables
+         WHERE id = :tid
+         LIMIT 1"
         );
-        $stmt->execute(['tid' => $tableId, 'uid' => $userId]);
-        $row = $stmt->fetch();
 
-        if (!$row) return ['error' => 'Mesa no encontrada o no autorizada', 'code' => 404];
+        $stmt->execute([
+            'tid' => $tableId
+        ]);
+
+        $row = $stmt->fetch();
 
         $current = (int) $row['status_id'];
 
-        $stmt = $this->conn->prepare(
-            "SELECT id FROM table_statuses WHERE id > :c ORDER BY id ASC LIMIT 1"
-        );
-        $stmt->execute(['c' => $current]);
-        $next = $stmt->fetchColumn();
+        $totalStatuses = (int) $this->conn
+            ->query("SELECT COUNT(*) FROM table_statuses")
+            ->fetchColumn();
 
-        if ($next === false) {
-            $next = $this->conn
-                ->query("SELECT id FROM table_statuses ORDER BY id ASC LIMIT 1")
-                ->fetchColumn();
+        $next = $current + 1;
+
+        if ($next > $totalStatuses) {
+            $next = 1;
         }
 
-        if ($next === false) return ['error' => 'No hay estados definidos', 'code' => 500];
+        $this->updateStatus($tableId, $next);
 
-        $next = (int) $next;
-
+        return [
+            'success' => true,
+            'code' => 200,
+            'table' => $this->findById($tableId)
+        ];
+    }
+    public function updateStatus(int $tableId, int $statusId): void
+    {
         $stmt = $this->conn->prepare(
-            "UPDATE tables SET status_id = :n, updated_at = NOW() WHERE id = :id"
+            "UPDATE tables
+         SET status_id = :status,
+             updated_at = NOW()
+         WHERE id = :id"
         );
-        $stmt->execute(['n' => $next, 'id' => $tableId]);
 
-        return ['success' => true, 'code' => 200, 'table' => $this->findById($tableId)];
+        $stmt->execute([
+            'status' => $statusId,
+            'id' => $tableId
+        ]);
     }
 
     public function listStatuses(): array
