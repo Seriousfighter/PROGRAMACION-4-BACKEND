@@ -5,12 +5,12 @@ require_once __DIR__ . '/../views/JsonView.php';
 
 class TableController
 {
-    public function getById(int $id, int $userId): void
+    public function getById(int $id, int $userId): void // Trae los datos de una mesa específica por su ID
     {
         JsonView::render(['data' => $this->assertOwned($id, $userId)], 200);
     }
 
-    public function update(int $id, int $userId): void
+    public function update(int $id, int $userId): void // Actualiza los datos de una mesa específica.
     {
         $this->assertOwned($id, $userId);
         $b = $this->jsonBody();
@@ -25,14 +25,14 @@ class TableController
         JsonView::render(['data' => $m->findById($id)], 200);
     }
 
-    public function delete(int $id, int $userId): void
+    public function delete(int $id, int $userId): void // Elimina una mesa específica
     {
         $this->assertOwned($id, $userId);
         (new Table())->delete($id);
         JsonView::render(null, 204);
     }
 
-    public function rotateStatus(int $id): void
+    public function rotateStatus(int $id): void // Cambia el estado de una mesa específica (de disponible a ocupada, de ocupada a reservada, etc.)
     {
         $result = (new Table())->rotateStatus($id);
         if (isset($result['error'])) {
@@ -44,12 +44,12 @@ class TableController
         ], 200);
     }
 
-    public function listStatuses(): void
+    public function listStatuses(): void // Lista todos los estados posibles de las mesas
     {
         JsonView::render(['data' => (new Table())->listStatuses()], 200);
     }
 
-    private function assertOwned(int $tableId, int $userId): array
+    private function assertOwned(int $tableId, int $userId): array // Verifica que la mesa pertenece a un restaurante del usuario autenticado
     {
         $t = (new Table())->findById($tableId);
         if (!$t) JsonView::render(['message' => 'La mesa no existe'], 404);
@@ -60,7 +60,7 @@ class TableController
         return $t;
     }
 
-    private function jsonBody(): array
+    private function jsonBody(): array // Obtiene el cuerpo de la solicitud en formato JSON
     {
         $raw = file_get_contents('php://input');
         if ($raw === '' || $raw === false) return [];

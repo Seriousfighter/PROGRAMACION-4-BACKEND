@@ -1,16 +1,26 @@
 <?php
 require_once __DIR__ . '/../config/Database.php';
 
+/**
+ * Clase Restaurant
+ * - Se encarga de todas las consultas SQL relacionadas con la tabla "restaurants".
+ * - Contiene tanto los métodos para el panel de admin como para la vista pública.
+ */
 class Restaurant
 {
-    private PDO $conn;
+    private PDO $conn; // Conexión a la base de datos
 
     public function __construct()
     {
+        // Obtiene la conexión Singleton
         $this->conn = Database::getConnection();
     }
 
-    public function getRestaurantById($id): ?array
+    /**
+     * Busca un restaurante por su ID.
+     * @param int $id - ID del restaurante
+     */
+    public function getRestaurantById(int $id): ?array
     {
         $stmt = $this->conn->prepare(
             "SELECT id, user_id, name, address, phone, description, is_open,
@@ -21,6 +31,10 @@ class Restaurant
         return $stmt->fetch() ?: null;
     }
 
+    /**
+     * Trae todos los restaurantes con su cantidad de mesas libres y totales.
+     * Se usa en la vista pública para las tarjetas.
+     */
     public function getPublicAvailability(): array
     {
         $sql = "SELECT
@@ -32,10 +46,12 @@ class Restaurant
                 LEFT JOIN table_statuses ts ON ts.id = t.status_id
                 GROUP BY r.id, r.name, r.address, r.phone, r.description, r.is_open
                 ORDER BY available_tables DESC, r.name ASC";
+        
         $stmt = $this->conn->prepare($sql);
         $stmt->execute();
         $rows = $stmt->fetchAll();
 
+        // Convertimos los tipos de datos para que el JSON se vea limpio
         return array_map(function ($r) {
             $r['id']               = (int) $r['id'];
             $r['is_open']          = (bool) $r['is_open'];
@@ -45,6 +61,9 @@ class Restaurant
         }, $rows);
     }
 
+    /**
+     * Lista todos los restaurantes de un usuario (para el panel de admin).
+     */
     public function listByUser(int $userId): array
     {
         $stmt = $this->conn->prepare(
@@ -56,6 +75,10 @@ class Restaurant
         return $stmt->fetchAll();
     }
 
+    /**
+     * Busca un restaurante asegurándose de que pertenezca al usuario.
+     * (Evita que un admin edite el restaurante de otro).
+     */
     public function findOwned(int $id, int $userId): ?array
     {
         $stmt = $this->conn->prepare(
@@ -67,6 +90,10 @@ class Restaurant
         return $stmt->fetch() ?: null;
     }
 
+    /**
+     * Crea un nuevo restaurante en la base de datos.
+     * Devuelve el ID generado.
+     */
     public function create(int $userId, array $d): int
     {
         $stmt = $this->conn->prepare(
@@ -84,6 +111,9 @@ class Restaurant
         return (int) $this->conn->lastInsertId();
     }
 
+    /**
+     * Actualiza los datos de un restaurante.
+     */
     public function update(int $id, array $d): bool
     {
         $stmt = $this->conn->prepare(
@@ -102,6 +132,9 @@ class Restaurant
         ]);
     }
 
+    /**
+     * Elimina un restaurante (y en cascada sus mesas, si la DB está configurada así).
+     */
     public function delete(int $id): bool
     {
         $stmt = $this->conn->prepare("DELETE FROM restaurants WHERE id = :id");

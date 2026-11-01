@@ -4,7 +4,7 @@ require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../views/JsonView.php';
 
 class AuthMiddleware
-{
+{// Este middleware se encarga de verificar la validez del token JWT en las solicitudes privadas y extraer el ID del usuario autenticado.
     public static function userIdFromRequest(): int
     {
         $header = $_SERVER['HTTP_AUTHORIZATION']

@@ -12,25 +12,25 @@ class JwtHelper
     private const TTL    = 7200; // 2 horas
 
     private static function b64UrlEncode(string $data): string
-    {
+    { // Esta función codifica en base64 y hace que sea seguro para URLs (reemplaza + y / por - y _)
         return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
     }
 
-    private static function b64UrlDecode(string $data): string|false
-    {
+    private static function b64UrlDecode(string $data): string|false 
+    { // Esta función decodifica de base64url a string normal
         $pad = strlen($data) % 4;
         if ($pad) $data .= str_repeat('=', 4 - $pad);
         return base64_decode(strtr($data, '-_', '+/'));
     }
 
     private static function sign(string $h64, string $p64): string
-    {
+    { // Devuelve la firma HMAC-SHA256 del header y payload codificados en base64url
         $hash = hash_hmac('sha256', $h64 . '.' . $p64, self::SECRET, true);
         return self::b64UrlEncode($hash);
     }
 
     public static function encode(array $payload): string
-    {
+    { // Devuelve un token JWT firmado con el payload dado (ej: ['sub' => 123, 'email' => '
         $header  = ['alg' => self::ALGO, 'typ' => 'JWT'];
         $now     = time();
         $payload = array_merge($payload, ['iat' => $now, 'exp' => $now + self::TTL]);
@@ -42,23 +42,23 @@ class JwtHelper
         return "{$h64}.{$p64}.{$s64}";
     }
 
-    public static function decode(string $token): ?array
-    {
+    public static function decode(string $token): ?array 
+    { // Devuelve el payload si el token es válido, o null si no lo es (ej: expirado, firma inválida, etc.)
         $parts = explode('.', $token);
-        if (count($parts) !== 3) return null;
+        if (count($parts) !== 3) return null; // Debe tener 3 partes: header, payload y firma
 
         [$h64, $p64, $s64] = $parts;
 
-        if (!hash_equals(self::sign($h64, $p64), $s64)) return null;
+        if (!hash_equals(self::sign($h64, $p64), $s64)) return null; // Verifica la firma HMAC-SHA256
 
         $json = self::b64UrlDecode($p64);
-        if ($json === false) return null;
+        if ($json === false) return null; // Decodifica el payload de base64url a JSON
 
         $payload = json_decode($json, true);
-        if (!is_array($payload)) return null;
+        if (!is_array($payload)) return null;// Decodifica el JSON a array asociativo
 
-        if (!isset($payload['exp']) || time() >= (int) $payload['exp']) return null;
+        if (!isset($payload['exp']) || time() >= (int) $payload['exp']) return null;// Verifica que el token no esté expirado
 
-        return $payload;
+        return $payload;// Devuelve el payload decodificado si todo es válido
     }
 }

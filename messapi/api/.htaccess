@@ -1,4 +1,4 @@
-RewriteEngine On
+RewriteEngine On 
 RewriteBase /messapi/api/
 
 # Pasar el header Authorization a PHP (Apache suele comerlo)

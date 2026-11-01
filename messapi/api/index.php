@@ -1,5 +1,7 @@
 <?php
-
+// Este archivo es el punto de entrada principal para la API. Se encarga de enrutar las solicitudes HTTP a los controladores
+// correspondientes según la ruta y el método HTTP, manejando tanto rutas públicas como privadas (con autenticación JWT). 
+//También gestiona los encabezados CORS y las respuestas JSON.
 require_once __DIR__ . '/views/JsonView.php';
 require_once __DIR__ . '/helpers/JwtHelper.php';
 require_once __DIR__ . '/middlewares/AuthMiddleware.php';
